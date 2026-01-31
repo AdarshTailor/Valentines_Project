@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Question 💝</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .heart {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .question {
+            font-size: 1.3em;
+            margin-bottom: 40px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            position: relative;
+            min-height: 150px;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #yesBtn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        #yesBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        #noBtn {
+            background: #e0e0e0;
+            color: #666;
+            transition: all 0.15s ease-out;
+        }
+
+
+        .hidden {
+            display: none;
+        }
+
+        .success {
+            animation: celebration 0.6s ease-out;
+        }
+
+        @keyframes celebration {
+            0% { transform: scale(0.8) rotate(-10deg); opacity: 0; }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .success-message {
+            font-size: 1.5em;
+            color: #667eea;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #667eea;
+            position: absolute;
+            animation: confetti-fall 3s linear;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <div class="heart">💝</div>
+        <h1>Hey Goofies!</h1>
+        <div class="question">Will you be my Valentine?</div>
+        <div class="buttons" id="buttonContainer">
+            <button id="yesBtn">Yes! 💕</button>
+            <button id="noBtn">No</button>
+        </div>
+        <div id="successMessage" class="hidden"></div>
+    </div>
+
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const container = document.getElementById('container');
+        const buttonContainer = document.getElementById('buttonContainer');
+        const successMessage = document.getElementById('successMessage');
+
+        let noClickCount = 0;
+        let yesBtnSize = 1;
+        let noBtnMoved = false;
+
+        // Make No button flee from mouse cursor
+        document.addEventListener('mousemove', function(e) {
+            if (buttonContainer.style.display === 'none') return;
+
+            const noBtnRect = noBtn.getBoundingClientRect();
+            const noBtnCenterX = noBtnRect.left + noBtnRect.width / 2;
+            const noBtnCenterY = noBtnRect.top + noBtnRect.height / 2;
+
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+
+            // Calculate distance between mouse and button center
+            const distanceX = noBtnCenterX - mouseX;
+            const distanceY = noBtnCenterY - mouseY;
+            const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+            // If mouse is within 150px of the button, move it away
+            if (distance < 150) {
+                if (!noBtnMoved) {
+                    noBtnMoved = true;
+                    noBtn.style.position = 'absolute';
+                }
+
+                const containerRect = buttonContainer.getBoundingClientRect();
+                const angle = Math.atan2(distanceY, distanceX);
+
+                // Calculate new position (move away from cursor)
+                let newX = noBtnCenterX + Math.cos(angle) * 100 - containerRect.left - noBtnRect.width / 2;
+                let newY = noBtnCenterY + Math.sin(angle) * 100 - containerRect.top - noBtnRect.height / 2;
+
+                // Keep button within bounds
+                newX = Math.max(0, Math.min(newX, containerRect.width - noBtnRect.width));
+                newY = Math.max(0, Math.min(newY, containerRect.height - noBtnRect.height));
+
+                noBtn.style.left = newX + 'px';
+                noBtn.style.top = newY + 'px';
+
+                // Increase Yes button size slightly
+                yesBtnSize += 0.01;
+                yesBtn.style.transform = `scale(${Math.min(yesBtnSize, 2)})`;
+            }
+        });
+
+        // Handle No button click (if they somehow manage to click it!)
+        noBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            noClickCount++;
+
+            // Increase Yes button size
+            yesBtnSize += 0.1;
+            yesBtn.style.transform = `scale(${Math.min(yesBtnSize, 2.5)})`;
+
+            // Change button text based on clicks
+            const noTexts = [
+                "Nope! 😝",
+                "Try again! 🏃‍♂️",
+                "Can't catch me! 🤪",
+                "So close! 😏",
+                "Not happening! 💨",
+                "Give up! 👉",
+                "Yes is better! ✨"
+            ];
+
+            if (noClickCount <= noTexts.length) {
+                noBtn.textContent = noTexts[Math.min(noClickCount - 1, noTexts.length - 1)];
+            }
+
+            // Make No button even harder to catch
+            noBtn.style.transform = `scale(${Math.max(0.6, 1 - noClickCount * 0.16)})`;
+        });
+
+        // Handle Yes button click
+        yesBtn.addEventListener('click', function() {
+            // Hide buttons
+            buttonContainer.style.display = 'none';
+
+            // Show success message
+            successMessage.innerHTML = `
+                <div class="success">
+                    <div class="heart" style="font-size: 100px;">❤️</div>
+                    <div class="success-message">Yay! I knew you'd say yes!</div>
+                    <div style="margin-top: 20px; color: #666; font-size: 1.1em;">
+                        This Valentine's Day is going to be soaktastic!  😉
+                    </div>
+                </div>
+            `;
+            successMessage.classList.remove('hidden');
+
+            // Create confetti
+            createConfetti();
+        });
+
+        function createConfetti() {
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#ff85a2'];
+            const shapes = ['circle', 'square'];
+
+            // Create multiple waves of confetti
+            for (let i = 0; i < 150; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    const size = 8 + Math.random() * 12; // Random size between 8-20px
+                    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+
+                    confetti.style.position = 'fixed';
+                    confetti.style.width = size + 'px';
+                    confetti.style.height = size + 'px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.top = '-20px';
+                    confetti.style.borderRadius = shape === 'circle' ? '50%' : '0';
+                    confetti.style.pointerEvents = 'none';
+                    confetti.style.opacity = '0.8';
+                    confetti.style.animation = `confetti-fall ${2 + Math.random() * 3}s linear`;
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 20);
+            }
+
+            // Add some heart confetti
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.textContent = '❤️';
+                    heart.style.position = 'fixed';
+                    heart.style.fontSize = (15 + Math.random() * 20) + 'px';
+                    heart.style.left = Math.random() * window.innerWidth + 'px';
+                    heart.style.top = '-30px';
+                    heart.style.pointerEvents = 'none';
+                    heart.style.animation = `confetti-fall ${2.5 + Math.random() * 2}s linear`;
+
+                    document.body.appendChild(heart);
+
+                    setTimeout(() => heart.remove(), 5000);
+                }, i * 40);
+            }
+        }
+    </script>
+</body>
+</html>
